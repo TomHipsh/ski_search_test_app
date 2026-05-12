@@ -10,6 +10,8 @@
   margin: 0 auto;
 }
 
+/* Search inputs */
+
 .search-bar {
   display: grid;
   grid-template-columns: minmax(180px, 1.4fr) minmax(120px, 0.7fr) minmax(300px, 1.7fr) auto;
@@ -72,6 +74,8 @@
   background: #9aa8ba;
   cursor: not-allowed;
 }
+
+/* Search results */
 
 .results-list {
   display: flex;
