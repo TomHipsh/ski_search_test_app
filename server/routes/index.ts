@@ -6,6 +6,8 @@ import type {
   ValidationErrorResponse,
 } from './types.js';
 import { validateSkiHotelSearchRequest } from './validators.js';
+import { skiSiteRepository } from '../repositories/sites/skiSites.js';
+import { sitesRouter } from './sites.js';
 
 const router = Router();
 
@@ -24,6 +26,16 @@ const searchSkiHotels: RequestHandler<
     return;
   }
 
+  const skiSite = skiSiteRepository.findByName(req.body.skiSiteName);
+
+  if (!skiSite) {
+    res.status(404).json({
+      error: 'Ski site not found',
+      details: [`ski site "${req.body.skiSiteName}" does not exist`],
+    });
+    return;
+  }
+
   res.json({ result: 'ok' });
 };
 
@@ -32,5 +44,6 @@ router.get('/', (req, res) => {
 });
 
 router.post('/search', searchSkiHotels);
+router.use('/sites', sitesRouter);
 
-export default router;
+export { router };

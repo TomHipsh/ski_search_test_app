@@ -5,8 +5,8 @@ export const validateSkiHotelSearchRequest = (body: unknown): string[] => {
     return ['Request body must be a JSON object'];
   }
 
-  if (!isPositiveInteger(body.skiSite)) {
-    errors.push('ski site must be a positive integer');
+  if (!isNonEmptyString(body.skiSiteName)) {
+    errors.push('ski site name must be a non-empty string');
   }
 
   if (!isValidDateString(body.startDate)) {
@@ -38,6 +38,10 @@ const isRecord = (value: unknown): value is Record<string, unknown> => {
 
 const isPositiveInteger = (value: unknown): value is number => {
   return typeof value === 'number' && Number.isInteger(value) && value > 0;
+};
+
+const isNonEmptyString = (value: unknown): value is string => {
+  return typeof value === 'string' && value.trim().length > 0;
 };
 
 const isValidDateString = (value: unknown): value is string => {

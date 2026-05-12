@@ -1,5 +1,7 @@
+import type { SkiSiteDataset } from '../repositories/types.js';
+
 export type SkiHotelSearchRequest = {
-  skiSite: number;
+  skiSiteName: string;
   startDate: string;
   endDate: string;
   groupSize: number;
@@ -13,3 +15,9 @@ export type ValidationErrorResponse = {
   error: string;
   details: string[];
 };
+
+export type GetSkiSitesQuery = {
+  namespace?: string;
+};
+
+export type GetSkiSitesResponse = SkiSiteDataset;
