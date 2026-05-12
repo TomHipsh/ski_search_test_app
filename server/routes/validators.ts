@@ -1,0 +1,70 @@
+export const validateSkiHotelSearchRequest = (body: unknown): string[] => {
+  const errors: string[] = [];
+
+  if (!isRecord(body)) {
+    return ['Request body must be a JSON object'];
+  }
+
+  if (!isPositiveInteger(body.skiSite)) {
+    errors.push('ski site must be a positive integer');
+  }
+
+  if (!isValidDateString(body.startDate)) {
+    errors.push('start date must be a valid date in DD/MM/YYYY format');
+  }
+
+  if (!isValidDateString(body.endDate)) {
+    errors.push('end date must be a valid date in DD/MM/YYYY format');
+  }
+
+  if (!isPositiveInteger(body.groupSize)) {
+    errors.push('group size must be a positive integer');
+  }
+
+  if (
+    isValidDateString(body.startDate) &&
+    isValidDateString(body.endDate) &&
+    parseDateString(body.startDate).getTime() > parseDateString(body.endDate).getTime()
+  ) {
+    errors.push('start date must be before or equal to end date');
+  }
+
+  return errors;
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> => {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+};
+
+const isPositiveInteger = (value: unknown): value is number => {
+  return typeof value === 'number' && Number.isInteger(value) && value > 0;
+};
+
+const isValidDateString = (value: unknown): value is string => {
+  if (typeof value !== 'string') {
+    return false;
+  }
+
+  const match = /^(?<day>\d{2})\/(?<month>\d{2})\/(?<year>\d{4})$/.exec(value);
+
+  if (!match?.groups) {
+    return false;
+  }
+
+  const month = Number(match.groups.month);
+  const day = Number(match.groups.day);
+  const year = Number(match.groups.year);
+  const date = new Date(year, month - 1, day);
+
+  return (
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day
+  );
+};
+
+const parseDateString = (value: string): Date => {
+  const [day, month, year] = value.split('/').map(Number);
+
+  return new Date(year, month - 1, day);
+};
