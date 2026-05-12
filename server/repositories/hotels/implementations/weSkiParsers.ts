@@ -46,8 +46,8 @@ export const toWeSkiHotelsRequest = (
   return {
     query: {
       ski_site: request.skiSite,
-      from_date: request.startDate,
-      to_date: request.endDate,
+      from_date: toWeSkiDate(request.startDate),
+      to_date: toWeSkiDate(request.endDate),
       group_size: request.groupSize,
     },
   };
@@ -82,4 +82,10 @@ const getMainImageLink = (accommodation: WeSkiAccommodation): string => {
   const mainImage = images.find((image) => image.MainImage === 'True');
 
   return mainImage?.URL ?? images[0]?.URL ?? '';
+};
+
+const toWeSkiDate = (date: string): string => {
+  const [day, month, year] = date.split('/');
+
+  return `${month}/${day}/${year}`;
 };
