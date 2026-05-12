@@ -1,25 +1,47 @@
-# Getting Started with Create React App
+# Ski App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is a test application for ski hotel search.
+
+Made by Tom Hipsh.
+
+## Project Setup
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Build the project:
+
+```bash
+npm run build
+```
 
 ## Available Scripts
 
-In the project directory, you can run:
+Run commands from the project root.
 
-### `npm start`
+### `npm run start:app`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Starts the React frontend on [http://localhost:3000](http://localhost:3000).
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### `npm run start:server`
+
+Starts the Express server from the compiled `server/dist` output.
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Builds all workspaces.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### `npm run build:app`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Builds only the React frontend.
+
+### `npm run build:server`
+
+Builds only the Express server.
+
+### `npm test`
+
+Runs the frontend test script.
