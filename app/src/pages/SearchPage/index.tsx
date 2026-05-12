@@ -1,10 +1,11 @@
 import type { FormEvent } from 'react';
 import { useMemo, useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { fetchSites, searchHotels } from './api';
+import { useQuery } from '@tanstack/react-query';
+import { fetchSites } from './api';
 import { SearchInputsBar } from './SearchInputsBar';
 import { SearchResultItem } from './SearchResultItem';
-import type { SearchFormState } from './types';
+import type { SearchFormState, SearchHotelsRequest } from './types';
+import { useHotelSearchQueries } from './useHotelSearchQueries';
 import { isValidDateRange, isValidGroupSize, toApiDate } from './utils';
 import './SearchPage.css';
 
@@ -17,15 +18,16 @@ const initialFormState: SearchFormState = {
 
 export const SearchPage = () => {
   const [formState, setFormState] = useState<SearchFormState>(initialFormState);
+  const [searchRequests, setSearchRequests] = useState<SearchHotelsRequest[]>(
+    [],
+  );
 
   const sitesQuery = useQuery({
     queryKey: ['sites'],
     queryFn: fetchSites,
   });
 
-  const searchMutation = useMutation({
-    mutationFn: searchHotels,
-  });
+  const hotelSearch = useHotelSearchQueries(searchRequests);
 
   const sitesById = useMemo(() => {
     return new Map((sitesQuery.data ?? []).map((site) => [site.id, site.name]));
@@ -34,8 +36,7 @@ export const SearchPage = () => {
   const canSearch =
     formState.siteName.trim().length > 0 &&
     isValidGroupSize(formState.groupSize) &&
-    isValidDateRange(formState.startDate, formState.endDate) &&
-    !searchMutation.isPending;
+    isValidDateRange(formState.startDate, formState.endDate);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -44,12 +45,7 @@ export const SearchPage = () => {
       return;
     }
 
-    searchMutation.mutate({
-      skiSiteName: formState.siteName,
-      startDate: toApiDate(formState.startDate),
-      endDate: toApiDate(formState.endDate),
-      groupSize: Number(formState.groupSize),
-    });
+    setSearchRequests(createSearchRequests(formState));
   };
 
   return (
@@ -68,18 +64,18 @@ export const SearchPage = () => {
           <p className="status-message">Could not load ski sites.</p>
         )}
 
-        {searchMutation.isError && (
+        {hotelSearch.isError && (
           <p className="status-message">Could not search hotels.</p>
         )}
 
         <section className="results-list">
-          {searchMutation.isPending && (
+          {hotelSearch.isFetching && (
             <p className="status-message">Searching hotels...</p>
           )}
 
-          {(searchMutation.data ?? []).map((hotel) => (
+          {hotelSearch.results.map((hotel) => (
             <SearchResultItem
-              key={hotel.hotelCode}
+              key={`${hotel.hotelCode}-${hotel.groupSize}`}
               hotel={hotel}
               siteName={sitesById.get(hotel.skiSite) ?? hotel.skiSite}
             />
@@ -88,4 +84,28 @@ export const SearchPage = () => {
       </section>
     </main>
   );
+};
+
+const createSearchRequests = (
+  formState: SearchFormState,
+): SearchHotelsRequest[] => {
+  const groupSize = Number(formState.groupSize);
+  const baseRequest = {
+    skiSiteName: formState.siteName,
+    startDate: toApiDate(formState.startDate),
+    endDate: toApiDate(formState.endDate),
+    groupSize,
+  };
+
+  if (groupSize >= 10) {
+    return [baseRequest];
+  }
+
+  return [
+    baseRequest,
+    {
+      ...baseRequest,
+      groupSize: groupSize + 1,
+    },
+  ];
 };

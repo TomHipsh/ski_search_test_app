@@ -128,6 +128,11 @@
   font-size: 15px;
 }
 
+.star-rating {
+  color: #d5971f;
+  letter-spacing: 1px;
+}
+
 .status-message {
   padding: 18px 2px 0;
 }

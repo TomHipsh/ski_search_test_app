@@ -19,10 +19,16 @@ export const SearchResultItem = ({
       />
       <div className="hotel-result-details">
         <h2>{hotel.hotelName}</h2>
-        <p>{hotel.rating}</p>
+        <p className="star-rating">
+          {getRatingStars(hotel.rating)}
+        </p>
         <p>{siteName}</p>
-        <p>{formatPrice(getPricePerPerson(hotel))}</p>
+        <p>{`${formatPrice(getPricePerPerson(hotel))} / per person`}</p>
       </div>
     </article>
   );
+};
+
+const getRatingStars = (rating: number): string => {
+  return '★'.repeat(Math.max(0, Math.floor(rating)));
 };
