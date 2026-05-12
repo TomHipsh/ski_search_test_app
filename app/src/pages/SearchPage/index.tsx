@@ -97,7 +97,7 @@ export const SearchPage = () => {
 
   return (
     <main className="search-page" aria-label="Hotel search">
-      <section className="search-page__content">
+      <section className="search-page-content">
         <form className="search-bar" onSubmit={handleSubmit}>
           <label className="search-field">
             <span>Site name</span>
@@ -115,7 +115,7 @@ export const SearchPage = () => {
             </select>
           </label>
 
-          <label className="search-field search-field--compact">
+          <label className="search-field search-field-compact">
             <span>Group size</span>
             <input
               max="10"
@@ -174,11 +174,11 @@ export const SearchPage = () => {
           {(searchMutation.data ?? []).map((hotel) => (
             <article className="hotel-result" key={hotel.hotelCode}>
               <img
-                className="hotel-result__image"
+                className="hotel-result-image"
                 src={hotel.contentImageLink}
                 alt={hotel.hotelName}
               />
-              <div className="hotel-result__details">
+              <div className="hotel-result-details">
                 <h2>{hotel.hotelName}</h2>
                 <p>Rating: {hotel.rating}</p>
                 <p>Site: {sitesById.get(hotel.skiSite) ?? hotel.skiSite}</p>
