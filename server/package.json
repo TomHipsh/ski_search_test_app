@@ -1,0 +1,13 @@
+{
+  "name": "ski-app-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "express": "^4.22.2"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "build": "node --check index.js"
+  }
+}
