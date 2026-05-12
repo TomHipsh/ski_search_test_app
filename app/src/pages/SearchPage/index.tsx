@@ -75,9 +75,9 @@ export const SearchPage = () => {
   const canSearch =
     siteName.trim().length > 0 &&
     isValidGroupSize(groupSize) &&
-    isValidDate(startDate) &&
-    isValidDate(endDate) &&
-    parseDate(startDate).getTime() <= parseDate(endDate).getTime() &&
+    startDate.length > 0 &&
+    endDate.length > 0 &&
+    new Date(startDate).getTime() <= new Date(endDate).getTime() &&
     !searchMutation.isPending;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -89,14 +89,14 @@ export const SearchPage = () => {
 
     searchMutation.mutate({
       skiSiteName: siteName,
-      startDate,
-      endDate,
+      startDate: toApiDate(startDate),
+      endDate: toApiDate(endDate),
       groupSize: Number(groupSize),
     });
   };
 
   return (
-    <main className="search-page" aria-label="Hotel search">
+    <main className="search-page">
       <section className="search-page-content">
         <form className="search-bar" onSubmit={handleSubmit}>
           <label className="search-field">
@@ -126,29 +126,22 @@ export const SearchPage = () => {
             />
           </label>
 
-          <div className="date-range" role="group" aria-label="Date range">
+          <div className="date-range" role="group">
             <label className="search-field">
               <span>Start date</span>
               <input
-                inputMode="numeric"
-                placeholder="DD/MM/YYYY"
-                type="text"
+                type="date"
                 value={startDate}
-                onChange={(event) =>
-                  setStartDate(formatDateInput(event.target.value))
-                }
+                onChange={(event) => setStartDate(event.target.value)}
               />
             </label>
             <label className="search-field">
               <span>End date</span>
               <input
-                inputMode="numeric"
-                placeholder="DD/MM/YYYY"
-                type="text"
+                min={startDate}
+                type="date"
                 value={endDate}
-                onChange={(event) =>
-                  setEndDate(formatDateInput(event.target.value))
-                }
+                onChange={(event) => setEndDate(event.target.value)}
               />
             </label>
           </div>
@@ -166,7 +159,7 @@ export const SearchPage = () => {
           <p className="status-message">Could not search hotels.</p>
         )}
 
-        <section className="results-list" aria-label="Hotel results">
+        <section className="results-list">
           {searchMutation.isPending && (
             <p className="status-message">Searching hotels...</p>
           )}
@@ -180,9 +173,9 @@ export const SearchPage = () => {
               />
               <div className="hotel-result-details">
                 <h2>{hotel.hotelName}</h2>
-                <p>Rating: {hotel.rating}</p>
-                <p>Site: {sitesById.get(hotel.skiSite) ?? hotel.skiSite}</p>
-                <p>Total price: {formatPrice(hotel.totalPrice)}</p>
+                <p>{hotel.rating}</p>
+                <p>{sitesById.get(hotel.skiSite) ?? hotel.skiSite}</p>
+                <p>{formatPrice(getPricePerPerson(hotel))}</p>
               </div>
             </article>
           ))}
@@ -192,39 +185,10 @@ export const SearchPage = () => {
   );
 };
 
-const formatDateInput = (value: string): string => {
-  const digits = value.replace(/\D/g, '').slice(0, 8);
+const toApiDate = (date: string): string => {
+  const [year, month, day] = date.split('-');
 
-  if (digits.length <= 2) {
-    return digits;
-  }
-
-  if (digits.length <= 4) {
-    return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-  }
-
-  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
-};
-
-const isValidDate = (value: string): boolean => {
-  if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
-    return false;
-  }
-
-  const date = parseDate(value);
-  const [day, month, year] = value.split('/').map(Number);
-
-  return (
-    date.getFullYear() === year &&
-    date.getMonth() === month - 1 &&
-    date.getDate() === day
-  );
-};
-
-const parseDate = (value: string): Date => {
-  const [day, month, year] = value.split('/').map(Number);
-
-  return new Date(year, month - 1, day);
+  return `${day}/${month}/${year}`;
 };
 
 const isValidGroupSize = (value: string): boolean => {
@@ -238,4 +202,8 @@ const formatPrice = (price: number): string => {
     style: 'currency',
     currency: 'EUR',
   }).format(price);
+};
+
+const getPricePerPerson = (hotel: HotelSearchResult): number => {
+  return hotel.totalPrice / hotel.groupSize;
 };
