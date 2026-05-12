@@ -1,8 +1,25 @@
-export const validateSkiHotelSearchRequest = (body: unknown): string[] => {
+import type { SkiHotelSearchRequest } from './types.js';
+
+type ValidationResult<T> =
+  | {
+      isValid: true;
+      data: T;
+    }
+  | {
+      isValid: false;
+      errors: string[];
+    };
+
+export const validateSkiHotelSearchRequest = (
+  body: unknown,
+): ValidationResult<SkiHotelSearchRequest> => {
   const errors: string[] = [];
 
   if (!isRecord(body)) {
-    return ['Request body must be a JSON object'];
+    return {
+      isValid: false,
+      errors: ['Request body must be a JSON object'],
+    };
   }
 
   if (!isNonEmptyString(body.skiSiteName)) {
@@ -24,12 +41,23 @@ export const validateSkiHotelSearchRequest = (body: unknown): string[] => {
   if (
     isValidDateString(body.startDate) &&
     isValidDateString(body.endDate) &&
-    parseDateString(body.startDate).getTime() > parseDateString(body.endDate).getTime()
+    parseDateString(body.startDate).getTime() >
+      parseDateString(body.endDate).getTime()
   ) {
     errors.push('start date must be before or equal to end date');
   }
 
-  return errors;
+  if (errors.length > 0) {
+    return {
+      isValid: false,
+      errors,
+    };
+  }
+
+  return {
+    isValid: true,
+    data: body as SkiHotelSearchRequest,
+  };
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {

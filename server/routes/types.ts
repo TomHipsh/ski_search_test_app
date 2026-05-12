@@ -1,4 +1,4 @@
-import type { SkiSiteDataset } from '../repositories/types.js';
+import type { HotelsSearchResponse, SkiSiteDataset } from '../repositories/types.js';
 
 export type SkiHotelSearchRequest = {
   skiSiteName: string;
@@ -7,9 +7,7 @@ export type SkiHotelSearchRequest = {
   groupSize: number;
 };
 
-export type SkiHotelSearchResponse = {
-  result: 'ok';
-};
+export type SkiHotelSearchResponse = HotelsSearchResponse;
 
 export type ValidationErrorResponse = {
   error: string;

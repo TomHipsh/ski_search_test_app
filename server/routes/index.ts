@@ -6,6 +6,7 @@ import type {
   ValidationErrorResponse,
 } from './types.js';
 import { validateSkiHotelSearchRequest } from './validators.js';
+import { hotelRepository } from '../repositories/hotels/hotels.js';
 import { skiSiteRepository } from '../repositories/sites/skiSites.js';
 import { sitesRouter } from './sites.js';
 
@@ -14,34 +15,45 @@ const router = Router();
 const searchSkiHotels: RequestHandler<
   Record<string, never>,
   SkiHotelSearchResponse | ValidationErrorResponse,
-  SkiHotelSearchRequest
-> = (req, res) => {
-  const validationErrors = validateSkiHotelSearchRequest(req.body);
+  unknown
+> = async (req, res) => {
+  const validationResult = validateSkiHotelSearchRequest(req.body);
 
-  if (validationErrors.length > 0) {
+  if (!validationResult.isValid) {
     res.status(400).json({
       error: 'Invalid request body',
-      details: validationErrors,
+      details: validationResult.errors,
     });
     return;
   }
 
-  const skiSite = skiSiteRepository.findByName(req.body.skiSiteName);
+  const searchRequest: SkiHotelSearchRequest = validationResult.data;
+  const skiSite = skiSiteRepository.findByName(searchRequest.skiSiteName);
 
   if (!skiSite) {
     res.status(404).json({
       error: 'Ski site not found',
-      details: [`ski site "${req.body.skiSiteName}" does not exist`],
+      details: [`ski site "${searchRequest.skiSiteName}" does not exist`],
     });
     return;
   }
 
-  res.json({ result: 'ok' });
-};
+  try {
+    const hotels = await hotelRepository.searchHotels({
+      skiSite: skiSite.id,
+      startDate: searchRequest.startDate,
+      endDate: searchRequest.endDate,
+      groupSize: searchRequest.groupSize,
+    });
 
-router.get('/', (req, res) => {
-  res.send('hello-world');
-});
+    res.json(hotels);
+  } catch (error) {
+    res.status(502).json({
+      error: 'Hotels vendor request failed',
+      details: [error instanceof Error ? error.message : 'Unknown error'],
+    });
+  }
+};
 
 router.post('/search', searchSkiHotels);
 router.use('/sites', sitesRouter);
