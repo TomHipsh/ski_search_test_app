@@ -84,6 +84,29 @@
   margin-top: 22px;
 }
 
+.results-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.results-header h1,
+.results-header p {
+  margin: 0;
+}
+
+.results-header h1 {
+  color: #162033;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.results-header p {
+  color: #56657c;
+  font-size: 15px;
+}
+
 .hotel-result {
   display: grid;
   grid-template-columns: 220px 1fr;
@@ -128,7 +151,7 @@
   font-size: 15px;
 }
 
-.star-rating {
+.hotel-result-details .star-rating {
   color: #d5971f;
   letter-spacing: 1px;
 }

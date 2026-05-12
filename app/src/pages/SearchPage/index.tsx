@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchSites } from './api';
 import { SearchInputsBar } from './SearchInputsBar';
 import { SearchResultItem } from './SearchResultItem';
+import { SearchResultsHeader } from './SearchResultsHeader';
 import type { SearchFormState, SearchHotelsRequest } from './types';
 import { useHotelSearchQueries } from './useHotelSearchQueries';
 import { isValidDateRange, isValidGroupSize, toApiDate } from './utils';
@@ -18,6 +19,8 @@ const initialFormState: SearchFormState = {
 
 export const SearchPage = () => {
   const [formState, setFormState] = useState<SearchFormState>(initialFormState);
+  const [submittedFormState, setSubmittedFormState] =
+    useState<SearchFormState | null>(null);
   const [searchRequests, setSearchRequests] = useState<SearchHotelsRequest[]>(
     [],
   );
@@ -45,8 +48,12 @@ export const SearchPage = () => {
       return;
     }
 
+    setSubmittedFormState(formState);
     setSearchRequests(createSearchRequests(formState));
   };
+
+  const shouldShowResultsHeader =
+    submittedFormState !== null && !hotelSearch.isFetching;
 
   return (
     <main className="search-page">
@@ -71,6 +78,13 @@ export const SearchPage = () => {
         <section className="results-list">
           {hotelSearch.isFetching && (
             <p className="status-message">Searching hotels...</p>
+          )}
+
+          {shouldShowResultsHeader && (
+            <SearchResultsHeader
+              resultsCount={hotelSearch.results.length}
+              submittedFormState={submittedFormState}
+            />
           )}
 
           {hotelSearch.results.map((hotel) => (
