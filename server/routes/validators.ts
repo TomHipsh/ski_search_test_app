@@ -34,8 +34,8 @@ export const validateSkiHotelSearchRequest = (
     errors.push('end date must be a valid date in DD/MM/YYYY format');
   }
 
-  if (!isPositiveInteger(body.groupSize)) {
-    errors.push('group size must be a positive integer');
+  if (!isValidGroupSize(body.groupSize)) {
+    errors.push('group size must be an integer between 1 and 10');
   }
 
   if (
@@ -64,8 +64,13 @@ const isRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 };
 
-const isPositiveInteger = (value: unknown): value is number => {
-  return typeof value === 'number' && Number.isInteger(value) && value > 0;
+const isValidGroupSize = (value: unknown): value is number => {
+  return (
+    typeof value === 'number' &&
+    Number.isInteger(value) &&
+    value >= 1 &&
+    value <= 10
+  );
 };
 
 const isNonEmptyString = (value: unknown): value is string => {

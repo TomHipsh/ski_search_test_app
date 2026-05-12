@@ -74,7 +74,7 @@ export const SearchPage = () => {
 
   const canSearch =
     siteName.trim().length > 0 &&
-    Number(groupSize) > 0 &&
+    isValidGroupSize(groupSize) &&
     isValidDate(startDate) &&
     isValidDate(endDate) &&
     parseDate(startDate).getTime() <= parseDate(endDate).getTime() &&
@@ -118,6 +118,7 @@ export const SearchPage = () => {
           <label className="search-field search-field--compact">
             <span>Group size</span>
             <input
+              max="10"
               min="1"
               type="number"
               value={groupSize}
@@ -224,6 +225,12 @@ const parseDate = (value: string): Date => {
   const [day, month, year] = value.split('/').map(Number);
 
   return new Date(year, month - 1, day);
+};
+
+const isValidGroupSize = (value: string): boolean => {
+  const groupSize = Number(value);
+
+  return Number.isInteger(groupSize) && groupSize >= 1 && groupSize <= 10;
 };
 
 const formatPrice = (price: number): string => {
